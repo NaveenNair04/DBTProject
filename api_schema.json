@@ -1,0 +1,1063 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Market Data API",
+    "description": "API for accessing real-time and historical market data with advanced analytics and alerts",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/api/v1/market-data": {
+      "get": {
+        "summary": "Get market data",
+        "description": "Retrieve market data with optional filtering and aggregation",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "description": "Trading symbol (e.g., BTCUSDT, AAPL)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "timeframe",
+            "in": "query",
+            "description": "Time interval (e.g., 1m, 5m, 1h)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["1m", "5m", "15m", "30m", "1h", "4h", "1d"]
+            }
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "Start time in ISO format (e.g., 2025-04-14T15:50:00Z)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "End time in ISO format (e.g., 2025-04-14T16:00:00Z)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of records to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 100,
+              "maximum": 1000
+            }
+          },
+          {
+            "name": "aggregate",
+            "in": "query",
+            "description": "Aggregation function to apply (e.g., avg, sum, min, max)",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["avg", "sum", "min", "max", "first", "last"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/MarketData"
+                      }
+                    },
+                    "total": {
+                      "type": "integer",
+                      "description": "Total number of records"
+                    },
+                    "metadata": {
+                      "type": "object",
+                      "properties": {
+                        "aggregation": {
+                          "type": "string",
+                          "description": "Applied aggregation function"
+                        },
+                        "timeframe": {
+                          "type": "string",
+                          "description": "Applied timeframe"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - Invalid parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/analytics": {
+      "get": {
+        "summary": "Get market analytics",
+        "description": "Retrieve market analytics and technical indicators",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "description": "Trading symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "indicators",
+            "in": "query",
+            "description": "Comma-separated list of technical indicators",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": ["rsi", "macd", "bollinger", "sma", "ema", "volume_profile"]
+            }
+          },
+          {
+            "name": "timeframe",
+            "in": "query",
+            "description": "Time interval for calculations",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["1m", "5m", "15m", "30m", "1h", "4h", "1d"]
+            }
+          },
+          {
+            "name": "start_time",
+            "in": "query",
+            "description": "Start time for analysis",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          {
+            "name": "end_time",
+            "in": "query",
+            "description": "End time for analysis",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Analytics"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/alerts": {
+      "get": {
+        "summary": "Get market alerts",
+        "description": "Retrieve market alerts and notifications",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "description": "Trading symbol",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Alert status filter",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["active", "triggered", "expired"]
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of alerts to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "alerts": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/components/schemas/Alert"
+                      }
+                    },
+                    "total": {
+                      "type": "integer",
+                      "description": "Total number of alerts"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Create market alert",
+        "description": "Create a new market alert",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AlertCreate"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Alert created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Alert"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/symbols": {
+      "get": {
+        "summary": "Get available symbols",
+        "description": "Retrieve list of available trading symbols with metadata",
+        "parameters": [
+          {
+            "name": "source",
+            "in": "query",
+            "description": "Filter by data source",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["binance", "yahoo"]
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Filter by symbol type",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": ["crypto", "stock", "forex"]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Symbol"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/timeframes": {
+      "get": {
+        "summary": "Get available timeframes",
+        "description": "Retrieve list of available time intervals with metadata",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Timeframe"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/latest-data": {
+      "get": {
+        "summary": "Get latest market data (Legacy)",
+        "description": "Retrieve latest market data for a symbol",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "description": "Trading symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of records to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MarketData"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/ohlc": {
+      "get": {
+        "summary": "Get OHLC data (Legacy)",
+        "description": "Retrieve OHLC (Open, High, Low, Close) data",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "description": "Trading symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "timeframe",
+            "in": "query",
+            "description": "Time interval (e.g., 1min, 5min)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of records to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MarketData"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/alerts": {
+      "get": {
+        "summary": "Get alerts (Legacy)",
+        "description": "Retrieve market alerts",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "query",
+            "description": "Trading symbol",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of records to return",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Alert"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/spark-analytics/min-max/{symbol}": {
+      "get": {
+        "summary": "Get min/max analytics",
+        "description": "Get minimum and maximum price analytics for a specific symbol",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "description": "Trading symbol (e.g., AAPL, GOOGL)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "symbol": {
+                      "type": "string",
+                      "description": "Trading symbol"
+                    },
+                    "min_price": {
+                      "type": "number",
+                      "description": "Minimum price"
+                    },
+                    "max_price": {
+                      "type": "number",
+                      "description": "Maximum price"
+                    },
+                    "avg_price": {
+                      "type": "number",
+                      "description": "Average price"
+                    },
+                    "count": {
+                      "type": "integer",
+                      "description": "Number of data points"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Timestamp of the analytics"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "detail": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/spark-analytics/rolling-metrics/{symbol}": {
+      "get": {
+        "summary": "Get rolling metrics",
+        "description": "Get rolling metrics for a specific symbol with configurable window duration",
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "description": "Trading symbol (e.g., AAPL, GOOGL)",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "window_duration",
+            "in": "query",
+            "description": "Duration of the rolling window (e.g., '5 minutes', '1 hour')",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "5 minutes"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "symbol": {
+                      "type": "string",
+                      "description": "Trading symbol"
+                    },
+                    "window_start": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Start of the window period"
+                    },
+                    "window_end": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "End of the window period"
+                    },
+                    "min_price": {
+                      "type": "number",
+                      "description": "Minimum price in the window"
+                    },
+                    "max_price": {
+                      "type": "number",
+                      "description": "Maximum price in the window"
+                    },
+                    "avg_price": {
+                      "type": "number",
+                      "description": "Average price in the window"
+                    },
+                    "avg_volume": {
+                      "type": "number",
+                      "description": "Average volume in the window"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "detail": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/spark-analytics/symbols": {
+      "get": {
+        "summary": "Get available symbols",
+        "description": "Get list of symbols with available Spark analytics",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "symbols": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "List of available symbols"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "detail": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/spark-analytics/summary": {
+      "get": {
+        "summary": "Get analytics summary",
+        "description": "Get summary of all Spark analytics across all symbols",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Timestamp of the summary"
+                    },
+                    "analytics": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "min_price": {
+                            "type": "number",
+                            "description": "Minimum price"
+                          },
+                          "max_price": {
+                            "type": "number",
+                            "description": "Maximum price"
+                          },
+                          "avg_price": {
+                            "type": "number",
+                            "description": "Average price"
+                          },
+                          "volume": {
+                            "type": "number",
+                            "description": "Trading volume"
+                          }
+                        }
+                      },
+                      "description": "Analytics data by symbol"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "detail": {
+                      "type": "string",
+                      "description": "Error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MarketData": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Trading symbol"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Timestamp of the data point"
+          },
+          "open": {
+            "type": "number",
+            "format": "float",
+            "description": "Opening price"
+          },
+          "high": {
+            "type": "number",
+            "format": "float",
+            "description": "Highest price"
+          },
+          "low": {
+            "type": "number",
+            "format": "float",
+            "description": "Lowest price"
+          },
+          "close": {
+            "type": "number",
+            "format": "float",
+            "description": "Closing price"
+          },
+          "volume": {
+            "type": "number",
+            "format": "float",
+            "description": "Trading volume"
+          },
+          "source": {
+            "type": "string",
+            "description": "Data source (e.g., binance)",
+            "enum": ["binance", "yahoo"]
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional market data metadata",
+            "properties": {
+              "trades": {
+                "type": "integer",
+                "description": "Number of trades"
+              },
+              "vwap": {
+                "type": "number",
+                "description": "Volume Weighted Average Price"
+              }
+            }
+          }
+        },
+        "required": ["symbol", "timestamp", "open", "high", "low", "close", "volume", "source"]
+      },
+      "Analytics": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Trading symbol"
+          },
+          "timeframe": {
+            "type": "string",
+            "description": "Analysis timeframe"
+          },
+          "indicators": {
+            "type": "object",
+            "properties": {
+              "rsi": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "value": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "macd": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "macd": {
+                      "type": "number"
+                    },
+                    "signal": {
+                      "type": "number"
+                    },
+                    "histogram": {
+                      "type": "number"
+                    }
+                  }
+                }
+              },
+              "bollinger": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time"
+                    },
+                    "upper": {
+                      "type": "number"
+                    },
+                    "middle": {
+                      "type": "number"
+                    },
+                    "lower": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "required": ["symbol", "timeframe", "indicators"]
+      },
+      "Alert": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique alert identifier"
+          },
+          "symbol": {
+            "type": "string",
+            "description": "Trading symbol"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Alert timestamp"
+          },
+          "type": {
+            "type": "string",
+            "description": "Alert type",
+            "enum": ["price_above", "price_below", "volume_above", "volume_below", "rsi_above", "rsi_below", "macd_crossover", "macd_crossunder"]
+          },
+          "value": {
+            "type": "number",
+            "format": "float",
+            "description": "Alert threshold value"
+          },
+          "status": {
+            "type": "string",
+            "description": "Alert status",
+            "enum": ["active", "triggered", "expired"]
+          },
+          "message": {
+            "type": "string",
+            "description": "Alert message"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional alert metadata",
+            "properties": {
+              "timeframe": {
+                "type": "string",
+                "description": "Alert timeframe"
+              },
+              "notification_channels": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": ["email", "webhook", "slack"]
+                }
+              }
+            }
+          }
+        },
+        "required": ["id", "symbol", "timestamp", "type", "value", "status", "message"]
+      },
+      "AlertCreate": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Trading symbol"
+          },
+          "type": {
+            "type": "string",
+            "description": "Alert type",
+            "enum": ["price_above", "price_below", "volume_above", "volume_below", "rsi_above", "rsi_below", "macd_crossover", "macd_crossunder"]
+          },
+          "value": {
+            "type": "number",
+            "format": "float",
+            "description": "Alert threshold value"
+          },
+          "timeframe": {
+            "type": "string",
+            "description": "Alert timeframe",
+            "enum": ["1m", "5m", "15m", "30m", "1h", "4h", "1d"]
+          },
+          "notification_channels": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["email", "webhook", "slack"]
+            }
+          }
+        },
+        "required": ["symbol", "type", "value", "timeframe"]
+      },
+      "Symbol": {
+        "type": "object",
+        "properties": {
+          "symbol": {
+            "type": "string",
+            "description": "Trading symbol"
+          },
+          "name": {
+            "type": "string",
+            "description": "Full name of the asset"
+          },
+          "type": {
+            "type": "string",
+            "description": "Symbol type",
+            "enum": ["crypto", "stock", "forex"]
+          },
+          "source": {
+            "type": "string",
+            "description": "Data source",
+            "enum": ["binance", "yahoo"]
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional symbol metadata",
+            "properties": {
+              "base_currency": {
+                "type": "string",
+                "description": "Base currency for the symbol"
+              },
+              "quote_currency": {
+                "type": "string",
+                "description": "Quote currency for the symbol"
+              },
+              "min_price": {
+                "type": "number",
+                "description": "Minimum price"
+              },
+              "max_price": {
+                "type": "number",
+                "description": "Maximum price"
+              },
+              "tick_size": {
+                "type": "number",
+                "description": "Minimum price movement"
+              }
+            }
+          }
+        },
+        "required": ["symbol", "name", "type", "source"]
+      },
+      "Timeframe": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string",
+            "description": "Timeframe value",
+            "enum": ["1m", "5m", "15m", "30m", "1h", "4h", "1d"]
+          },
+          "description": {
+            "type": "string",
+            "description": "Human-readable description"
+          },
+          "seconds": {
+            "type": "integer",
+            "description": "Duration in seconds"
+          },
+          "supported_indicators": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": ["rsi", "macd", "bollinger", "sma", "ema", "volume_profile"]
+            }
+          }
+        },
+        "required": ["value", "description", "seconds"]
+      }
+    }
+  }
+} 
