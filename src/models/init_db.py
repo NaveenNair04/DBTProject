@@ -1,5 +1,5 @@
-from base import Base, engine
-from market_data import MarketData, OHLCV, Alert
+from src.models.base import Base, engine
+from src.models.market_data import MarketData, OHLCV, Alert
 
 def init_db():
     # Create all tables

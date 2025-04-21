@@ -59,10 +59,10 @@ def get_market_data(
             {
                 "symbol": item.symbol,
                 "timestamp": item.event_time.isoformat(),
-                "open": item.price,  # Using price as open since we don't have OHLC in raw data
-                "high": item.price,  # Using price as high since we don't have OHLC in raw data
-                "low": item.price,  # Using price as low since we don't have OHLC in raw data
-                "close": item.price,  # Using price as close since we don't have OHLC in raw data
+                "open": item.price,
+                "high": item.price,
+                "low": item.price,
+                "close": item.price,
                 "volume": item.volume,
                 "source": item.source,
             }

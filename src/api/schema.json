@@ -1,0 +1,261 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Market Data Analytics API",
+    "description": "Real-time market data analytics API powered by Spark Streaming.\n\nThis API provides:\n- List of available trading symbols\n- Min-max price analytics for individual symbols\n- Rolling window metrics with customizable time windows\n- Summary analytics for all symbols\n\nData is processed in real-time using Spark Streaming and stored in PostgreSQL.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "Local development server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "symbols",
+      "description": "Operations related to available trading symbols"
+    },
+    {
+      "name": "analytics",
+      "description": "Market data analytics operations"
+    }
+  ],
+  "paths": {
+    "/api/v1/spark-analytics/symbols": {
+      "get": {
+        "summary": "Get available trading symbols",
+        "description": "Returns a list of all trading symbols currently being processed",
+        "operationId": "get_symbols",
+        "tags": ["symbols"],
+        "responses": {
+          "200": {
+            "description": "List of available trading symbols",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "symbols": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      },
+                      "description": "List of available trading symbols"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/spark-analytics/min-max/{symbol}": {
+      "get": {
+        "summary": "Get min-max analytics for a symbol",
+        "description": "Returns minimum, maximum, and average prices for a specific symbol",
+        "operationId": "get_min_max_analytics",
+        "tags": ["analytics"],
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trading symbol"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Min-max analytics for the specified symbol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "symbol": {
+                      "type": "string",
+                      "description": "Trading symbol"
+                    },
+                    "min_price": {
+                      "type": "number",
+                      "format": "float",
+                      "description": "Minimum price in the period"
+                    },
+                    "max_price": {
+                      "type": "number",
+                      "format": "float",
+                      "description": "Maximum price in the period"
+                    },
+                    "avg_price": {
+                      "type": "number",
+                      "format": "float",
+                      "description": "Average price in the period"
+                    },
+                    "count": {
+                      "type": "integer",
+                      "description": "Number of data points"
+                    },
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Timestamp of the analytics"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/spark-analytics/rolling-metrics/{symbol}": {
+      "get": {
+        "summary": "Get rolling window metrics",
+        "description": "Returns analytics for a specific symbol within a rolling time window",
+        "operationId": "get_rolling_metrics",
+        "tags": ["analytics"],
+        "parameters": [
+          {
+            "name": "symbol",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Trading symbol"
+          },
+          {
+            "name": "window_duration",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "Duration of the rolling window (e.g., '5 minutes')"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Rolling window metrics for the specified symbol",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "symbol": {
+                      "type": "string",
+                      "description": "Trading symbol"
+                    },
+                    "window_start": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Start time of the window"
+                    },
+                    "window_end": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "End time of the window"
+                    },
+                    "min_price": {
+                      "type": "number",
+                      "format": "float",
+                      "description": "Minimum price in the window"
+                    },
+                    "max_price": {
+                      "type": "number",
+                      "format": "float",
+                      "description": "Maximum price in the window"
+                    },
+                    "avg_price": {
+                      "type": "number",
+                      "format": "float",
+                      "description": "Average price in the window"
+                    },
+                    "avg_volume": {
+                      "type": "number",
+                      "format": "float",
+                      "description": "Average volume in the window"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/spark-analytics/summary": {
+      "get": {
+        "summary": "Get analytics summary",
+        "description": "Returns analytics summary for all available symbols",
+        "operationId": "get_analytics_summary",
+        "tags": ["analytics"],
+        "responses": {
+          "200": {
+            "description": "Summary of analytics for all symbols",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "timestamp": {
+                      "type": "string",
+                      "format": "date-time",
+                      "description": "Timestamp of the summary"
+                    },
+                    "analytics": {
+                      "type": "object",
+                      "description": "Analytics for each symbol",
+                      "additionalProperties": {
+                        "type": "object",
+                        "properties": {
+                          "min_price": {
+                            "type": "number",
+                            "format": "float",
+                            "description": "Minimum price"
+                          },
+                          "max_price": {
+                            "type": "number",
+                            "format": "float",
+                            "description": "Maximum price"
+                          },
+                          "avg_price": {
+                            "type": "number",
+                            "format": "float",
+                            "description": "Average price"
+                          },
+                          "volume": {
+                            "type": "number",
+                            "format": "float",
+                            "description": "Total volume"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "detail": {
+            "type": "string",
+            "description": "Error message"
+          }
+        }
+      }
+    }
+  }
+} 

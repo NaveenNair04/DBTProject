@@ -1,4 +1,5 @@
-from sqlalchemy import Column, Integer, Float, String, DateTime, Index
+from sqlalchemy import Column, Integer, Float, String, DateTime, Index, ForeignKey
+from sqlalchemy.orm import relationship
 from .base import Base
 from datetime import datetime
 
@@ -20,14 +21,14 @@ class MarketData(Base):
 class OHLCV(Base):
     __tablename__ = "ohlcv"
 
-    id = Column(Integer, primary_key=True)
-    symbol = Column(String, nullable=False)
-    timestamp = Column(DateTime, nullable=False)
-    open = Column(Float, nullable=False)
-    high = Column(Float, nullable=False)
-    low = Column(Float, nullable=False)
-    close = Column(Float, nullable=False)
-    volume = Column(Float, nullable=False)
+    id = Column(Integer, primary_key=True, index=True)
+    symbol = Column(String, index=True)
+    timestamp = Column(DateTime, index=True)
+    open = Column(Float)
+    high = Column(Float)
+    low = Column(Float)
+    close = Column(Float)
+    volume = Column(Float)
 
     # Create index on symbol and timestamp
     __table_args__ = (Index("idx_ohlcv_symbol_time", "symbol", "timestamp"),)
@@ -45,4 +46,19 @@ class Alert(Base):
 
     # Create index on timestamp for faster queries
     __table_args__ = (Index("idx_alerts_timestamp", "timestamp"),)
+
+
+class AnalyticsResult(Base):
+    __tablename__ = "analytics_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    symbol = Column(String, index=True)
+    timestamp = Column(DateTime, index=True)
+    min_price = Column(Float)
+    max_price = Column(Float)
+    avg_price = Column(Float)
+    total_volume = Column(Float)
+    trade_count = Column(Integer)
+    window_start = Column(DateTime)
+    window_end = Column(DateTime)
 
